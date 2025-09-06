@@ -33,7 +33,7 @@ pipeline {
 
         stage('Build and Push Docker Image') {
     environment {
-        DOCKER_IMAGE = "abhishekf5/first-cicd:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "harshithvf10/first-cicd:${BUILD_NUMBER}"
     }
     steps {
         withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
