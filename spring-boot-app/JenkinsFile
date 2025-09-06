@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'harshithvf10/maven-abhishek-docker-agent:v1'
+            image 'abhishekf5/maven-abhishek-docker-agent:v1'
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
@@ -33,7 +33,7 @@ pipeline {
 
         stage('Build and Push Docker Image') {
     environment {
-        DOCKER_IMAGE = "harshithvf10/first-cicd:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "abhishekf5/first-cicd:${BUILD_NUMBER}"
     }
     steps {
         withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
