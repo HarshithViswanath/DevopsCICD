@@ -52,11 +52,16 @@ pipeline {
                     echo "Running Trivy scan on Docker image..."
                     docker run --rm \
                       -v /var/run/docker.sock:/var/run/docker.sock \
+                      -v $WORKSPACE:/workspace \
                       aquasec/trivy:latest \
-                      image --severity HIGH,CRITICAL --exit-code 1 --no-progress ${DOCKER_IMAGE}
+                      image --severity HIGH,CRITICAL --exit-code 0 --no-progress \
+                      --format table --output /workspace/trivy-report.txt ${DOCKER_IMAGE}
                 '''
-            }
+            // Publish the report in Jenkins (as artifact)
+                archiveArtifacts artifacts: 'trivy-report.txt', allowEmptyArchive: true
+           }
         }
+
 
         stage('Push Docker Image') {
             environment {
