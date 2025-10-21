@@ -29,9 +29,25 @@ pipeline {
         }
       }
     }
+    stage('Trivy Scan') {
+       steps {
+         sh '''
+          mkdir -p trivy-reports
+          trivy image --no-progress --format json --output trivy-reports/trivy-report.json ${DOCKER_IMAGE}
+
+          # Fail build if HIGH/CRITICAL found
+          trivy image --severity HIGH,CRITICAL --exit-code 1 ${DOCKER_IMAGE}
+          '''
+       }
+        post {
+          always {
+             archiveArtifacts artifacts: 'trivy-reports/*', fingerprint: true
+          }
+         }
+      }
     stage('Build and Push Docker Image') {
       environment {
-        DOCKER_IMAGE = "abhishekf5/ultimate-cicd:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "harshithvf10/ultimate-cicd:${BUILD_NUMBER}"
         // DOCKERFILE_LOCATION = "spring-boot-app/Dockerfile"
         REGISTRY_CREDENTIALS = credentials('docker-cred')
       }
