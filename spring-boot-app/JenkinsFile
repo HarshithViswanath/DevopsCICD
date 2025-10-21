@@ -75,23 +75,28 @@ pipeline {
       }
     
     stage('Update Deployment File') {
-        environment {
-            GIT_REPO_NAME = "DevopsCICD"
-            GIT_USER_NAME = "HarshithViswanath"
-        }
-        steps {
-            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+    steps {
+        withEnv(["BUILD_NUMBER=${env.BUILD_NUMBER}"]) {
+            withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                 sh '''
-                    git config user.email "harshy33342b@gmail.com "
+                    # Configure Git user
+                    git config user.email "harshy33342b@gmail.com"
                     git config user.name "HarshithViswanath"
-                    BUILD_NUMBER=${BUILD_NUMBER}
+
+                    # Checkout main branch (or create it if it doesn't exist)
+                    git checkout main || git checkout -b main
+                    git pull origin main --no-rebase
+
+                    # Update the deployment file with the new build number
                     sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" spring-boot-app-manifests/deployment.yml
+
+                    # Commit and push changes
                     git add spring-boot-app-manifests/deployment.yml
                     git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                    git push https://${GITHUB_TOKEN}@github.com/HarshithViswanath/DevopsCICD.git main
                 '''
             }
         }
     }
-  }
 }
+
